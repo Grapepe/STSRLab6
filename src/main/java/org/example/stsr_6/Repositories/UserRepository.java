@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
-    // Spring автоматически поймет, что нужно сделать SELECT * FROM users WHERE login = ?
     User findByLogin(String login);
     User findByEmail(String email);
 }

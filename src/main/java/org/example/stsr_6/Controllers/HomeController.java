@@ -111,4 +111,68 @@ public class HomeController {
         hallRepository.deleteById(id);
         return "1. Кинозал удален";
     }
+
+    // --- РАБОТА С ДРУЗЬЯМИ ---
+
+    // Получить список моих друзей
+    @GetMapping("/allmyfriend")
+    public List<FriendRelationship> allmyfriend() {
+        if (processUser == null) return null;
+        return friendRelationshipRepository.findFriendRelationshipsByUsersone_Id(processUser.getId());
+    }
+
+    // Получить всех пользователей, которых можно добавить в друзья
+    @GetMapping("/allusersforfriend")
+    public List<User> allusersforfriend() {
+        if (processUser == null) return null;
+        List<User> allUsers = userRepository.findAll();
+        // Убираем из списка самого себя
+        allUsers.removeIf(u -> u.getId().equals(processUser.getId()));
+        return allUsers;
+    }
+
+    // Добавить пользователя в друзья
+    @PostMapping("/addmyfriend")
+    public String addmyfriend(@RequestBody User user) {
+        if (processUser == null) return "ERROR_AUTH";
+        if (user.getId().equals(processUser.getId())) return "ERROR_SELF";
+
+        // Проверяем, не в друзьях ли он уже
+        if (friendRelationshipRepository.findFriendRelationshipsByUsersone_IdAndUserstwo_Id(processUser.getId(), user.getId()) != null) {
+            return "ERROR_ALREADY_FRIEND";
+        }
+
+        FriendRelationship fr = new FriendRelationship();
+        fr.setUsersone(processUser);
+        fr.setUserstwo(userRepository.findById(user.getId()).orElse(null));
+        friendRelationshipRepository.save(fr);
+        return "GOOD";
+    }
+
+    // Удалить пользователя из друзей
+    @PostMapping("/deletoemnyfriend")
+    public String deletoemnyfriend(@RequestBody FriendRelationship friendRelationship) {
+        if (processUser == null) return "ERROR_AUTH";
+
+        FriendRelationship fr = friendRelationshipRepository.findFriendRelationshipsByUsersone_IdAndUserstwo_Id(
+                processUser.getId(),
+                friendRelationship.getUserstwo().getId()
+        );
+
+        if (fr != null) {
+            friendRelationshipRepository.delete(fr);
+            return "GOOD";
+        }
+        return "ERROR_NOT_FOUND";
+    }
+
+    @GetMapping("/getAccount")
+    public User getAccount() {
+        if (processUser == null) return null; // Если не авторизован
+        User user = userRepository.findById(processUser.getId()).orElse(null);
+        if (user != null) {
+            user.setPassword(" "); // Скрываем пароль перед отправкой на фронт
+        }
+        return user;
+    }
 }
