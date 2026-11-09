@@ -7,9 +7,6 @@ import java.util.List;
 
 @Repository
 public interface FriendRelationshipRepository extends JpaRepository<FriendRelationship, Integer> {
-    // Найти всех друзей текущего пользователя
     List<FriendRelationship> findFriendRelationshipsByUsersone_Id(Integer id);
-
-    // Проверить, есть ли уже такой друг
     FriendRelationship findFriendRelationshipsByUsersone_IdAndUserstwo_Id(Integer id1, Integer id2);
 }

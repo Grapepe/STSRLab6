@@ -15,11 +15,10 @@ public class HomeController {
     @Autowired private CinemaRepository cinemaRepository;
     @Autowired private CinemaUserRepository cinemaUserRepository;
     @Autowired private FriendRelationshipRepository friendRelationshipRepository;
-    @Autowired private HallRepository hallRepository; // Новый репозиторий
+    @Autowired private HallRepository hallRepository;
 
-    private User processUser; // В реальном проекте использовать HttpSession
+    private User processUser;
 
-    // --- РАБОТА С ПОЛЬЗОВАТЕЛЯМИ ---
     @PostMapping("/add")
     public String adder(@RequestBody User user) {
         if (userRepository.findByLogin(user.getLogin()) != null) return "ERRORLOGIN";
@@ -60,16 +59,14 @@ public class HomeController {
 
     @PostMapping("/addnewfilm")
     public String addnewfilm(@RequestBody Cinema cinema) {
-        // 1. Устанавливаем значения по умолчанию, если фронтенд их не прислал
         if (cinema.getMarks() == null) cinema.setMarks(0);
         if (cinema.getRating() == null) cinema.setRating(0.0f);
-        if (cinema.getYear() == null) cinema.setYear(0); // <-- ДОБАВЛЕНО
+        if (cinema.getYear() == null) cinema.setYear(0);
 
         if (!cinemaRepository.findByHeadnameAndYear(cinema.getHeadname(), cinema.getYear()).isEmpty()) {
             return "Этот фильм уже есть в базе";
         }
 
-        // 3. Сохранение
         cinemaRepository.save(cinema);
         return "1. Фильм успешно добавлен в каталог";
     }
@@ -112,16 +109,12 @@ public class HomeController {
         return "1. Кинозал удален";
     }
 
-    // --- РАБОТА С ДРУЗЬЯМИ ---
-
-    // Получить список моих друзей
     @GetMapping("/allmyfriend")
     public List<FriendRelationship> allmyfriend() {
         if (processUser == null) return null;
         return friendRelationshipRepository.findFriendRelationshipsByUsersone_Id(processUser.getId());
     }
 
-    // Получить всех пользователей, которых можно добавить в друзья
     @GetMapping("/allusersforfriend")
     public List<User> allusersforfriend() {
         if (processUser == null) return null;
@@ -131,13 +124,11 @@ public class HomeController {
         return allUsers;
     }
 
-    // Добавить пользователя в друзья
     @PostMapping("/addmyfriend")
     public String addmyfriend(@RequestBody User user) {
         if (processUser == null) return "ERROR_AUTH";
         if (user.getId().equals(processUser.getId())) return "ERROR_SELF";
 
-        // Проверяем, не в друзьях ли он уже
         if (friendRelationshipRepository.findFriendRelationshipsByUsersone_IdAndUserstwo_Id(processUser.getId(), user.getId()) != null) {
             return "ERROR_ALREADY_FRIEND";
         }
@@ -149,7 +140,6 @@ public class HomeController {
         return "GOOD";
     }
 
-    // Удалить пользователя из друзей
     @PostMapping("/deletoemnyfriend")
     public String deletoemnyfriend(@RequestBody FriendRelationship friendRelationship) {
         if (processUser == null) return "ERROR_AUTH";
@@ -171,7 +161,7 @@ public class HomeController {
         if (processUser == null) return null; // Если не авторизован
         User user = userRepository.findById(processUser.getId()).orElse(null);
         if (user != null) {
-            user.setPassword(" "); // Скрываем пароль перед отправкой на фронт
+            user.setPassword(" ");
         }
         return user;
     }

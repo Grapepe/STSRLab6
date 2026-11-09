@@ -8,6 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CinemaUserRepository extends JpaRepository<CinemaUser, Integer> {
-    // Ищет связь между конкретным фильмом и конкретным пользователем
     CinemaUser findByCinemasAndUsers(Cinema cinemas, User users);
 }

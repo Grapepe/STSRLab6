@@ -7,8 +7,8 @@ import jakarta.persistence.*;
 public class Hall {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id; // Изменено с int на Integer
+    private Integer id;
     private String name;
-    private Integer capacity; // Изменено с int на Integer
+    private Integer capacity;
     private String description;
 }
